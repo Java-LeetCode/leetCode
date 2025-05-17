@@ -2,6 +2,49 @@ package org.roman.easy;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
+
+/**
+ * Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+ * <p>
+ * An input string is valid if:
+ * <p>
+ * Open brackets must be closed by the same type of brackets.
+ * Open brackets must be closed in the correct order.
+ * Every close bracket has a corresponding open bracket of the same type.
+ * <p>
+ *
+ * Example 1:
+ * <p>
+ * Input: s = "()"
+ * <p>
+ * Output: true
+ * <p>
+ * Example 2:
+ * <p>
+ * Input: s = "()[]{}"
+ * <p>
+ * Output: true
+ * <p>
+ * Example 3:
+ * <p>
+ * Input: s = "(]"
+ * <p>
+ * Output: false
+ * <p>
+ * Example 4:
+ * <p>
+ * Input: s = "([])"
+ * <p>
+ * Output: true
+ * <p>
+ *
+ *
+ * Constraints:
+ * <p>
+ * 1 <= s.length <= 104
+ * s consists of parentheses only '()[]{}'.
+ * */
 
 public class ValidParentheses20 {
 
@@ -15,76 +58,51 @@ public class ValidParentheses20 {
         System.out.println("case 5: " + obj.isValid("([)]")+ " 🚫");
         System.out.println("case 6: " + obj.isValid("((") + " 🚫");
         System.out.println("case 7: " + obj.isValid("(){}}{")+ " 🚫");
-        System.out.println("case 8: " + obj.isValid("({{{{}}}))")+ " 🚫");
+        System.out.println("case 8: " + obj.isValid(")(){}")+ " 🚫");
+        System.out.println("case 9: " + obj.isValid("({{{{}}}))")+ " 🚫");
+        System.out.println("case 10: " + obj.isValid("()))")+ " 🚫");
 
     }
 
     public boolean isValid(String s) {
 
-        int loopTimes = s.length();
-
         int loop = 0;
-        int antiLoop = s.length() - 1;
-        int indexFor = 0;
 
-        char currentBrackets;
-        char nextBrackets = 0;
-        char lastBrackets = 0;
+        if (s.isEmpty()) {
+            return false;
+        }
+
+        if (s.charAt(s.length() - 1) == '{' || s.charAt(s.length() - 1) == '[' || s.charAt(s.length() - 1) == '(') {
+            return false;
+        }
+
+        if (s.charAt(0) == '}' || s.charAt(0) == ']' || s.charAt(0) == ')') {
+            return false;
+        }
 
         Map<Character, Character> map = new HashMap<>();
-        map.put('(',')');
-        map.put('{','}');
-        map.put('[',']');
+        map.put(')', '(');
+        map.put('}', '{');
+        map.put(']', '[');
 
-        boolean isClosed = false;
-        boolean extremes = false;
-        boolean continuation = false;
+        Stack<Character> stack = new Stack<>();
 
-        if(s.isEmpty()) {
-            return false;
-        };
+        while(loop < s.length() ){
+            char current = s.charAt(loop);
 
-        if(s.charAt(s.length() - 1) == '{' || s.charAt(s.length() - 1) == '[' || s.charAt(s.length() - 1) == '(') {
-            return false;
-        }
-
-        while(loop < loopTimes ){
-
-            currentBrackets = s.charAt(loop);
-
-            if(antiLoop != 0) {
-                lastBrackets = s.charAt(antiLoop);
+            if (map.containsValue(current)) {
+                stack.push(current);
             }
-            if(loop + 1 < s.length()) {
-                nextBrackets = s.charAt(loop + 1);
-            }
-
-            for (Map.Entry<Character, Character> entry : map.entrySet()) {
-                if(entry.getKey().equals(currentBrackets) && !entry.getValue().equals(lastBrackets)){
-                    isClosed = false;
-                    extremes = false;
-                } else {
-                    extremes = true;
-                }
-                if (entry.getKey().equals(currentBrackets) && entry.getValue().equals(nextBrackets)) {
-                    isClosed = true;
-                    continuation = true;
-                }else {
-                    continuation = false;
-                }
-
-                if(!continuation && !extremes) {
+            else if (map.containsKey(current)) {
+                if (stack.isEmpty() || stack.pop() != map.get(current)) {
                     return false;
                 }
-
-                indexFor++;
-                if(indexFor == 2) { break; }
+            } else {
+                return false;
             }
             loop++;
-            antiLoop--;
         }
-
-        return isClosed;
+        return stack.isEmpty();
     }
 
 }
